@@ -1,6 +1,6 @@
 """
 run.py — Tüm pipeline'ı tek komutla çalıştırır.
-Kullanım:  ANTHROPIC_API_KEY=... python3 run.py
+Kullanım:  python run.py   (ya da çift tık: calistir.bat)
 """
 import _bootstrap  # .env yükle + UTF-8 çıktı
 import subprocess, sys
@@ -15,7 +15,7 @@ steps = [
     ("5/5  Slayt görselleri hazırlanıyor",     "make_image.py"),
 ]
 for label, script in steps:
-    print(f"\n{'='*50}\n{label}\n{'='*50}")
+    print(f"\n{'='*50}\n{label}\n{'='*50}", flush=True)
     r = subprocess.run([sys.executable, str(ROOT / script)])
     if r.returncode != 0:
         print(f"\n✗ Hata: {script} adımında durdu.")

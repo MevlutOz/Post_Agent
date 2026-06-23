@@ -95,7 +95,7 @@ seçim içerdiğinden tamamen otomatik çalışamaz — her hafta elle `calistir
 (veya `python run.py`) ile başlat, 3. adımda haber numarasını gir.
 
 ## Sonraki adımlar (opsiyonel)
-- Carousel (çok sayfalı) görsel üretimi
+- Her slayt için ayrı Wiro arka planı (şu an yalnızca kapak Wiro)
 - AI görsel API'si entegrasyonu (DALL·E vb.)
 - Otomatik yayınlama (kendi IG Business hesabına Graph API ile)
 - Telegram/Slack'e taslak gönderme
