@@ -62,6 +62,9 @@ for s in sel:
     art = articles[i]
     candidates.append({**art, "reason": s["reason"], "angle": s["angle"]})
 
+# Claude talimata rağmen fazla öğe döndürürse sınırı sıkıca uygula
+candidates = candidates[:max_candidates]
+
 (ROOT / "data" / "candidates.json").write_text(
     json.dumps(candidates, ensure_ascii=False, indent=2), encoding="utf-8"
 )
