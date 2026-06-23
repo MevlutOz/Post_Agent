@@ -1,0 +1,49 @@
+# SaaS Bridge Haber Agent — Kaynak Konfigürasyonu
+# RSS feed'leri ana kaynak. İstediğin kadar ekle/çıkar.
+
+rss_feeds:
+  # --- SaaS / Startup ---
+  - name: "TechCrunch"
+    url: "https://techcrunch.com/feed/"
+  - name: "TechCrunch Startups"
+    url: "https://techcrunch.com/category/startups/feed/"
+  - name: "SaaStr"
+    url: "https://www.saastr.com/feed/"
+
+  # --- AI / AI Agents ---
+  - name: "VentureBeat AI"
+    url: "https://venturebeat.com/category/ai/feed/"
+  - name: "The Verge AI"
+    url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
+  - name: "MIT Tech Review AI"
+    url: "https://www.technologyreview.com/topic/artificial-intelligence/feed"
+
+  # --- Yatırım / VC ---
+  - name: "TechCrunch Venture"
+    url: "https://techcrunch.com/category/venture/feed/"
+
+  # --- Türkiye ekosistemi (örnek; webrazzi RSS'i değişebilir) ---
+  - name: "Webrazzi"
+    url: "https://webrazzi.com/feed"
+
+# Instagram resmi API başka hesapları çekmeye izin vermez.
+# Beğendiğin hesaplardan haftalık ilginç gönderi linklerini buraya elle yapıştır.
+# Agent bu URL'lerin metnini Claude'a "ek bağlam" olarak verir (sayfa çekilebilirse).
+manual_instagram_links: []
+  # - "https://www.instagram.com/p/XXXXXXX/"
+
+settings:
+  days_lookback: 7          # son kaç günü tara
+  max_articles_to_claude: 40  # Claude'a gönderilecek max haber (token kontrolü)
+  num_posts: 3              # üretilecek IG postu sayısı
+  language: "tr"            # caption dili
+  brand_name: "SaaS Bridge"
+
+# --- Wiro AI görsel üretimi (opsiyonel) ---
+# WIRO_API_KEY ortam değişkeni tanımlıysa arka planlar Wiro ile üretilir,
+# üstüne marka + başlık PIL ile basılır. Tanımlı değilse düz şablon kullanılır.
+# Model "owner/model" formatında. Wiro marketplace'ten seç:
+#   google/nano-banana-pro  (Gemini 3 Pro Image — kaliteli, önerilen)
+#   reve/generate           (sanatsal text-to-image)
+# Bu değer WIRO_MODEL ortam değişkeniyle de override edilebilir.
+wiro_model: "google/nano-banana-pro"
