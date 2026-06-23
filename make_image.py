@@ -8,7 +8,7 @@ make_image.py — posts.json'dan N slaytlık carousel render eder.
 Çıktı: output/<tarih>/slide_1.png … slide_<toplam>.png
 """
 import _bootstrap  # .env yükle + UTF-8 çıktı
-import json, os
+import json, os, re
 from pathlib import Path
 from datetime import date
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -74,7 +74,6 @@ def load_logo(height):
 
 LOGO = load_logo(64)
 
-import re
 # Görsele basılan fontlar (Arial vb.) emoji glyph'i içermez → emoji "□" kutusu
 # olarak basılır. Görsel metinlerinden emoji/sembol/render-dışı karakterleri at.
 _EMOJI_RE = re.compile(
@@ -170,7 +169,6 @@ def draw_chrome(img, d, idx, total, source):
 
 slides = build_slides(post)
 total = len(slides)
-today = date.today().isoformat()  # (üstte tanımlı; tekrar zararsız)
 
 for idx, sl in enumerate(slides, 1):
     if sl["kind"] == "cover":
