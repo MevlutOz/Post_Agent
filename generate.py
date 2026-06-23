@@ -57,7 +57,12 @@ resp = client.messages.create(
     messages=[{"role": "user", "content": prompt}],
 )
 text = resp.content[0].text.strip().replace("```json", "").replace("```", "").strip()
-data = json.loads(text)
+try:
+    data = json.loads(text)
+except json.JSONDecodeError as ex:
+    print("✗ Claude geçerli JSON döndürmedi. Ham yanıt:\n")
+    print(text)
+    raise SystemExit(f"JSON ayrıştırma hatası: {ex}")
 
 # Slayt başlıklarını güvenceye al (Claude sırayı/başlığı kaçırırsa düzelt)
 slides = data.get("slides", [])
