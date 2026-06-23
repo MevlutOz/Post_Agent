@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from select import parse_choice
+from secim import parse_choice
 
 
 def test_valid_choice_returns_zero_based_index():

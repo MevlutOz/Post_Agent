@@ -1,5 +1,6 @@
 """
-select.py — Adayları terminalde listeler, kullanıcıdan TEK haber seçtirir.
+secim.py — Adayları terminalde listeler, kullanıcıdan TEK haber seçtirir.
+(Not: dosya adı stdlib `select` modülünü gölgelememek için `secim`dir.)
 Çıktı: data/curated.json (tek elemanlı liste)
 """
 import _bootstrap  # .env yükle + UTF-8 çıktı
