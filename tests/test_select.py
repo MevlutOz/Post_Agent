@@ -29,3 +29,8 @@ def test_out_of_range_returns_none():
     assert parse_choice("0", 15) is None
     assert parse_choice("16", 15) is None
     assert parse_choice("-1", 15) is None
+
+
+def test_double_sign_returns_none():
+    assert parse_choice("--3", 15) is None
+    assert parse_choice("+-3", 15) is None
