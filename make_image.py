@@ -74,8 +74,27 @@ def load_logo(height):
 
 LOGO = load_logo(64)
 
+import re
+# Görsele basılan fontlar (Arial vb.) emoji glyph'i içermez → emoji "□" kutusu
+# olarak basılır. Görsel metinlerinden emoji/sembol/render-dışı karakterleri at.
+_EMOJI_RE = re.compile(
+    "[\U0001F000-\U0001FAFF"   # emoji blokları (emoticon, sembol, taşıma, ek)
+    "\U00002600-\U000027BF"    # misc semboller + dingbat
+    "\U00002B00-\U00002BFF"    # ek oklar/semboller
+    "\U0001F1E6-\U0001F1FF"    # bayrak harfleri
+    "\U0000FE00-\U0000FE0F"    # varyasyon seçicileri
+    "\U0000200D]+",            # zero-width joiner
+    flags=re.UNICODE,
+)
+
+def clean_text(text):
+    """Emoji/render edilemeyen karakterleri çıkarır, fazla boşluğu sadeleştirir."""
+    if not text:
+        return ""
+    return re.sub(r"\s{2,}", " ", _EMOJI_RE.sub("", text)).strip()
+
 def wrap(draw, text, font, max_w):
-    words, lines, cur = text.split(), [], ""
+    words, lines, cur = clean_text(text).split(), [], ""
     for w in words:
         test = (cur + " " + w).strip()
         if draw.textlength(test, font=font) <= max_w:
@@ -144,7 +163,7 @@ def draw_chrome(img, d, idx, total, source):
     d.text((W - margin - pw, 70), prog, font=f_foot, fill=ACCENT)
     # alt bilgi
     d.line([margin, H - 130, W - margin, H - 130], fill=(60, 70, 90), width=2)
-    d.text((margin, H - 100), f"Kaynak: {source}", font=f_foot, fill=MUTED)
+    d.text((margin, H - 100), clean_text(f"Kaynak: {source}"), font=f_foot, fill=MUTED)
     d.text((margin, H - 64), "@saasbridge", font=f_foot, fill=ACCENT)
     return margin
 
