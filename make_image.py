@@ -1,12 +1,11 @@
 """
-make_image.py — Her post için 1080x1080 Instagram görsel kartı üretir.
+make_image.py — posts.json'dan N slaytlık carousel render eder.
 
 İki mod:
-  • Wiro AI varsa (WIRO_API_KEY): Wiro üretken arka plan görseli üretir,
-    üstüne karartma + marka + başlık basılır (zengin + okunabilir).
-  • Wiro yoksa: düz koyu marka şablonu (her zaman çalışır).
+  • Wiro AI varsa (WIRO_API_KEY): Kapak slaytı Wiro üretken arka planla.
+  • Wiro yoksa: tüm slaytlar düz koyu marka şablonu.
 
-Çıktı: output/<tarih>/post_N.png
+Çıktı: output/<tarih>/slide_1.png … slide_<toplam>.png
 """
 import _bootstrap  # .env yükle + UTF-8 çıktı
 import json, os
@@ -15,7 +14,6 @@ from datetime import date
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = Path(__file__).parent
-posts = json.loads((ROOT / "data" / "posts.json").read_text(encoding="utf-8"))
 today = date.today().isoformat()
 outdir = ROOT / "output" / today
 outdir.mkdir(parents=True, exist_ok=True)
@@ -109,52 +107,101 @@ def wiro_background(post, idx):
         print(f"    ! Wiro arka plan başarısız ({ex}); düz zemine düşülüyor.")
         return None
 
-for i, p in enumerate(posts, 1):
-    bg = wiro_background(p, i) if USE_WIRO else None
-    if bg is None:
-        img = Image.new("RGB", (W, H), BG)
-    else:
-        img = bg
-        # okunabilirlik: sol-alt karartma katmanı (gradient yerine düz overlay)
-        overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        od = ImageDraw.Draw(overlay)
-        od.rectangle([0, 0, W, H], fill=(10, 12, 20, 130))      # genel karartma
-        od.rectangle([0, 260, W, H], fill=(10, 12, 20, 90))     # alt yarı ekstra
-        img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+post = json.loads((ROOT / "data" / "posts.json").read_text(encoding="utf-8"))
 
-    d = ImageDraw.Draw(img)
+f_body = load_font(40)   # detay gövde metni
+
+def build_slides(post):
+    """posts.json'u render edilecek slayt spec listesine çevirir."""
+    slides = [{
+        "kind": "cover",
+        "title": post["cover_title"],
+        "subtitle": post.get("cover_subtitle", ""),
+    }]
+    for s in post.get("slides", []):
+        slides.append({"kind": "detail", "heading": s["heading"], "body": s.get("body", "")})
+    slides.append({
+        "kind": "cta",
+        "title": post["cta_title"],
+        "subtitle": post.get("cta_subtitle", "Takip et: @saasbridge"),
+    })
+    return slides
+
+
+def draw_chrome(img, d, idx, total, source):
+    """Tüm slaytlarda ortak: üst accent, logo+marka, ilerleme, alt bilgi."""
     margin = 90
-
-    d.rectangle([0, 0, W, 12], fill=ACCENT)                     # üst accent
-    d.rectangle([margin, 300, margin + 70, 312], fill=ACCENT)   # başlık çizgisi
-
-    # marka logosu + isim (üst sol)
+    d.rectangle([0, 0, W, 12], fill=ACCENT)
     bx = margin
     if LOGO is not None:
         img.paste(LOGO, (margin, 56), LOGO)
         bx = margin + LOGO.width + 24
     d.text((bx, 62), "SAAS BRIDGE", font=f_brand, fill=WHITE)
     d.text((bx, 104), "Haftalık Ekosistem Bülteni", font=f_foot, fill=MUTED)
-
-    y = 340
-    for line in wrap(d, p["visual_title"], f_title, W - 2 * margin):
-        d.text((margin, y), line, font=f_title, fill=WHITE)
-        y += 86
-
-    y += 24
-    for line in wrap(d, p["visual_subtitle"], f_sub, W - 2 * margin):
-        d.text((margin, y), line, font=f_sub, fill=MUTED)
-        y += 50
-
+    # ilerleme göstergesi (sağ üst)
+    prog = f"{idx}/{total}"
+    pw = d.textlength(prog, font=f_foot)
+    d.text((W - margin - pw, 70), prog, font=f_foot, fill=ACCENT)
+    # alt bilgi
     d.line([margin, H - 130, W - margin, H - 130], fill=(60, 70, 90), width=2)
-    d.text((margin, H - 100), f"Kaynak: {p['source']}", font=f_foot, fill=MUTED)
+    d.text((margin, H - 100), f"Kaynak: {source}", font=f_foot, fill=MUTED)
     d.text((margin, H - 64), "@saasbridge", font=f_foot, fill=ACCENT)
+    return margin
 
-    path = outdir / f"post_{i}.png"
+
+slides = build_slides(post)
+total = len(slides)
+today = date.today().isoformat()  # (üstte tanımlı; tekrar zararsız)
+
+for idx, sl in enumerate(slides, 1):
+    if sl["kind"] == "cover":
+        bg = wiro_background(
+            {"visual_title": sl["title"]}, idx
+        ) if USE_WIRO else None
+    else:
+        bg = None
+
+    if bg is None:
+        img = Image.new("RGB", (W, H), BG)
+    else:
+        img = bg
+        overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        od = ImageDraw.Draw(overlay)
+        od.rectangle([0, 0, W, H], fill=(10, 12, 20, 130))
+        od.rectangle([0, 260, W, H], fill=(10, 12, 20, 90))
+        img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+
+    d = ImageDraw.Draw(img)
+    margin = draw_chrome(img, d, idx, total, post["source"])
+
+    if sl["kind"] in ("cover", "cta"):
+        d.rectangle([margin, 300, margin + 70, 312], fill=ACCENT)
+        y = 340
+        for line in wrap(d, sl["title"], f_title, W - 2 * margin):
+            d.text((margin, y), line, font=f_title, fill=WHITE)
+            y += 86
+        y += 24
+        if sl.get("subtitle"):
+            for line in wrap(d, sl["subtitle"], f_sub, W - 2 * margin):
+                d.text((margin, y), line, font=f_sub, fill=MUTED)
+                y += 50
+    else:  # detail
+        d.rectangle([margin, 300, margin + 70, 312], fill=ACCENT)
+        y = 330
+        for line in wrap(d, sl["heading"], f_title, W - 2 * margin):
+            d.text((margin, y), line, font=f_title, fill=WHITE)
+            y += 84
+        y += 28
+        for line in wrap(d, sl["body"], f_body, W - 2 * margin):
+            d.text((margin, y), line, font=f_body, fill=WHITE)
+            y += 56
+
+    path = outdir / f"slide_{idx}.png"
     img.save(path)
-    # geçici bg dosyasını temizle
-    bgfile = outdir / f"_bg_{i}.png"
-    if bgfile.exists(): bgfile.unlink()
-    print(f"  ✓ {path.name}" + ("  (Wiro arka plan)" if bg is not None else "  (düz şablon)"))
+    bgfile = outdir / f"_bg_{idx}.png"
+    if bgfile.exists():
+        bgfile.unlink()
+    tag = "(Wiro kapak)" if (sl["kind"] == "cover" and bg is not None) else "(şablon)"
+    print(f"  ✓ {path.name}  {tag}")
 
-print(f"\nGörseller hazır: output/{today}/")
+print(f"\nCarousel hazır: output/{today}/  ({total} slayt)")
