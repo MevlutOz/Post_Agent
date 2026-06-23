@@ -1,9 +1,9 @@
 # SaaS Bridge — Haftalık Instagram Haber Agent
 
 Son 1 haftanın SaaS / AI / AI agent / girişimcilik / yatırım haberlerini
-toplar, Claude ile en alakalı 2-3 tanesini seçer, Instagram caption'ları +
-marka görselleri üretir. Çıktıları `output/<tarih>/` klasörüne yazar; sen
-inceleyip yayınlarsın.
+toplar, Claude sıralı aday listesi hazırlar, sen terminalden bir haber seçersin;
+seçilen haber 5 slaytlık carousel olur. Instagram caption'ları + marka görselleri
+üretir. Çıktıları `output/<tarih>/` klasörüne yazar; sen inceleyip yayınlarsın.
 
 ## Kurulum
 
@@ -49,24 +49,30 @@ Proje oluştururken Wiro'da iki kimlik yöntemi var: *API Key Only* (sadece
 ## Çalıştırma
 
 ```bash
-python3 run.py
+python run.py
 ```
 
-Çıktı: `output/2026-06-18/captions.md` + `post_1.png`, `post_2.png` ...
+Pipeline 5 adım sırayla çalışır: RSS toplama → Claude aday listesi → **sen bir haber seçersin** (terminal prompt) → Claude carousel metni → slayt görselleri.
+
+Çıktı: `output/2026-06-23/captions.md` + `slide_1.png`, `slide_2.png` ... `slide_5.png`
+
+Windows'ta çift tıkla çalıştırmak için: **`calistir.bat`**
 
 ## Adım adım çalıştırmak istersen
 
 ```bash
-python3 fetch.py       # RSS topla → data/articles_raw.json
-python3 curate.py      # Claude haberleri seç → data/curated.json
-python3 generate.py    # Claude caption üret → data/posts.json + captions.md
-python3 make_image.py  # görselleri üret → post_*.png
+python fetch.py        # RSS topla → data/articles_raw.json
+python curate.py       # Claude aday listesi → data/candidates.json
+python secim.py        # terminalden haber seç → data/curated.json
+python generate.py     # Claude carousel metni → data/posts.json + captions.md
+python make_image.py   # görselleri üret → slide_*.png
 ```
 
 ## Özelleştirme
 
 - **Kaynaklar:** `sources.yaml` → `rss_feeds` listesine ekle/çıkar.
-- **Post sayısı:** `sources.yaml` → `settings.num_posts`.
+- **Aday sayısı:** `sources.yaml` → `settings.max_candidates` (kaç haber listeleneceği).
+- **Detay slayt sayısı:** `sources.yaml` → `settings.carousel_detail_slides`.
 - **Marka rengi/fontu:** `make_image.py` üstündeki `BG`, `ACCENT`,
   `BRAND_DEEP/ROYAL/LIGHT` (palet: #2928B6 #4341D1 #8B8AE8) değerleri.
 - **Marka logosu:** `brand/` klasöründeki ikonlar. Görsel kartlarda
@@ -82,15 +88,14 @@ ilham almak için ilginç gönderi linklerini `sources.yaml` →
 
 Ana içerik beslemen RSS + haber sitelerinden gelir; bu en sağlam ve sürdürülebilir yoldur.
 
-## Haftalık otomatik çalıştırma (cron)
+## Çalıştırma notu
 
-Her Pazartesi 09:00:
-```
-0 9 * * 1  cd /yol/saas-bridge-agent && ANTHROPIC_API_KEY=... python3 run.py
-```
+Zamanlanmış görev (Windows Task Scheduler / cron) kaldırıldı. Pipeline interaktif
+seçim içerdiğinden tamamen otomatik çalışamaz — her hafta elle `calistir.bat`
+(veya `python run.py`) ile başlat, 3. adımda haber numarasını gir.
 
 ## Sonraki adımlar (opsiyonel)
-- Carousel (çok sayfalı) görsel üretimi
+- Her slayt için ayrı Wiro arka planı (şu an yalnızca kapak Wiro)
 - AI görsel API'si entegrasyonu (DALL·E vb.)
 - Otomatik yayınlama (kendi IG Business hesabına Graph API ile)
 - Telegram/Slack'e taslak gönderme

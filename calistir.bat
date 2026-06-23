@@ -9,7 +9,7 @@ echo.
 echo.
 echo --------------------------------------------
 echo  Bitti. Ciktilar: output\^<tarih^>\ klasorunde
-echo  (captions.md + post_*.png)
+echo  (captions.md + slide_*.png)
 echo --------------------------------------------
 echo  Kapatmak icin bir tusa bas...
 pause >nul

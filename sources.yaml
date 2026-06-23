@@ -35,7 +35,8 @@ manual_instagram_links: []
 settings:
   days_lookback: 7          # son kaç günü tara
   max_articles_to_claude: 40  # Claude'a gönderilecek max haber (token kontrolü)
-  num_posts: 3              # üretilecek IG postu sayısı
+  max_candidates: 15        # kullanıcıya sunulacak aday haber sayısı
+  carousel_detail_slides: 3 # kapak ve CTA dışı detay slayt sayısı
   language: "tr"            # caption dili
   brand_name: "SaaS Bridge"
 
