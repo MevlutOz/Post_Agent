@@ -45,12 +45,7 @@ def test_editorial_with_topic_routes_to_discover(tmp_path, monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _prompt="": next(inputs))
 
     # save_run_config'in yazdığı path'i geçici yere çevir
-    import runconfig as _rc
-
     def patched_save(theme, topic, path):
-        _rc.save_run_config.__wrapped__ if hasattr(_rc.save_run_config, "__wrapped__") else None
-        # orijinal fonksiyonu geçici path'e yönlendir
-        _rc.save_run_config.__class__  # no-op; call original with tmp path
         import json as _json
         Path(cfg_file).write_text(
             _json.dumps({"theme": theme, "topic": topic}, ensure_ascii=False, indent=2),

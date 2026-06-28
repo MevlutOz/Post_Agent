@@ -4,6 +4,7 @@ import _bootstrap  # noqa: F401
 import json
 import sys
 from pathlib import Path
+import anthropic
 from anthropic import Anthropic
 
 from runconfig import load_run_config
@@ -86,7 +87,7 @@ def main():
             raise ValueError("Yanıtta metin bloğu yok")
         articles = _parse_articles_from_text(text, max_n)
 
-    except Exception as e:
+    except (anthropic.BadRequestError, json.JSONDecodeError, ValueError) as e:
         # Fallback: drop output_config.format; append explicit JSON instruction to prompt
         print(f"[discover] Birincil çağrı başarısız ({type(e).__name__}: {e}). "
               f"Fallback (output_config olmadan) deneniyor...")

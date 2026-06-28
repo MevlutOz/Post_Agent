@@ -62,11 +62,10 @@ python run.py
 - Tema seçildikten sonra **konu** sorusu gelir (opsiyonel):
   - Konu girersen → `discover.py` web araması yapar (haberler web'den gelir)
   - Boş bırakırsan → `fetch.py` RSS'den toplar
-- Seçilen haber konu türüne göre işlenir
 - **Editöryel özellikler:** 6 kartlık layout, Wiro siyah-beyaz fotoğraflar, card 6 sabit etkinlik posteri
 - **Gereksinimler:** Playwright ve Chromium (yukarıdaki kurulumda yüklü)
 
-Çıktı: `output/2026-06-23/` klasörü (tema türüne göre farklı dosya yapısı).
+Her iki tema da `output/<tarih>/` içine `slide_1..N.png` üretir — CTA Mavi 5, Editöryel 6 slayt; `captions.md` ile birlikte.
 
 ## Temalar
 
