@@ -25,7 +25,7 @@ def photo_subjects(post):
 
     return {
         "hero": title or "modern technology and venture capital",
-        "move": body(0),
+        "move": body(0) or title or "girişim ve yatırım haberi",
         "founder": "a startup founder, portrait, workspace",
         "investor": "a venture capital investor in a boardroom",
     }
@@ -62,6 +62,10 @@ def render(post, outdir):
     outdir = Path(outdir).resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
+    # Önceki çalıştırmadan kalan bayat slaytları temizle (dönüş sayısı şişmesin)
+    for f in outdir.glob("slide_*.png"):
+        f.unlink()
+
     # Şablon varlıklarını çıktı klasörüne kopyala (HTML göreli yolla bulur)
     for asset in ("logo-blue.svg", "cta-founders-investors-night.png"):
         shutil.copyfile(TEMPLATE_DIR / asset, outdir / asset)
@@ -75,17 +79,19 @@ def render(post, outdir):
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(
-            viewport={"width": WIDTH, "height": HEIGHT},
-            device_scale_factor=2,
-        )
-        page.goto(html_path.as_uri())
-        page.wait_for_function("document.fonts.ready")
-        page.wait_for_timeout(400)  # webfont boyama
-        cards = page.query_selector_all("section.card")
-        for idx, card in enumerate(cards, 1):
-            card.screenshot(path=str(outdir / f"slide_{idx}.png"))
-        browser.close()
+        try:
+            page = browser.new_page(
+                viewport={"width": WIDTH, "height": HEIGHT},
+                device_scale_factor=2,
+            )
+            page.goto(html_path.as_uri())
+            page.wait_for_function("document.fonts.ready")
+            page.wait_for_timeout(400)  # webfont boyama
+            cards = page.query_selector_all("section.card")
+            for idx, card in enumerate(cards, 1):
+                card.screenshot(path=str(outdir / f"slide_{idx}.png"))
+        finally:
+            browser.close()
 
     # device_scale_factor=2 → 2160×2700; 1080×1350'e indir
     for f in sorted(outdir.glob("slide_*.png")):
