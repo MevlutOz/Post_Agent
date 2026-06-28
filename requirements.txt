@@ -1,0 +1,7 @@
+anthropic
+requests
+pyyaml
+feedparser
+Pillow
+python-dotenv
+playwright

@@ -8,7 +8,8 @@ seçilen haber 5 slaytlık carousel olur. Instagram caption'ları + marka görse
 ## Kurulum
 
 ```bash
-pip install feedparser anthropic pyyaml Pillow requests python-dotenv
+pip install -r requirements.txt
+python -m playwright install chromium
 ```
 
 ### API anahtarları (.env)
@@ -52,9 +53,28 @@ Proje oluştururken Wiro'da iki kimlik yöntemi var: *API Key Only* (sadece
 python run.py
 ```
 
-Pipeline 5 adım sırayla çalışır: RSS toplama → Claude aday listesi → **sen bir haber seçersin** (terminal prompt) → Claude carousel metni → slayt görselleri.
+**Tema Seçimi:**
+1. `python run.py` başlattığında ilk soru tema seçimidir:
+   - **1 = CTA Mavi** — Eski 5-slaytlık carousel yapısı (RSS toplama → Claude aday listesi → seçim → carousel metni → slayt görselleri)
+   - **2 = Editöryel** — Yeni 6-kartlık yapı
 
-Çıktı: `output/2026-06-23/captions.md` + `slide_1.png`, `slide_2.png` ... `slide_5.png`
+**Editöryel Tema Akışı:**
+- Tema seçildikten sonra **konu** sorusu gelir (opsiyonel):
+  - Konu girersen → `discover.py` web araması yapar (haberler web'den gelir)
+  - Boş bırakırsan → `fetch.py` RSS'den toplar
+- Seçilen haber konu türüne göre işlenir
+- **Editöryel özellikler:** 6 kartlık layout, Wiro siyah-beyaz fotoğraflar, card 6 sabit etkinlik posteri
+- **Gereksinimler:** Playwright ve Chromium (yukarıdaki kurulumda yüklü)
+
+Çıktı: `output/2026-06-23/` klasörü (tema türüne göre farklı dosya yapısı).
+
+## Temalar
+
+Tema kodu `themes/` klasörü altında tanımlanır:
+- **`themes/cta_mavi.py`** — CTA Mavi tema (5-slaytlık carousel)
+- **`themes/editorial.py`** — Editöryel tema (6-kartlık layout, Playwright ile HTML render)
+
+Her tema `render(post, outdir)` metodunu içerir, tema seçimine göre dispatcher tarafından çağrılır.
 
 Windows'ta çift tıkla çalıştırmak için: **`calistir.bat`**
 
