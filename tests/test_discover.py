@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from discover import build_search_prompt, ARTICLE_SCHEMA
+from discover import build_search_prompt, ARTICLE_SCHEMA, _parse_articles_from_text
 
 
 def test_prompt_contains_topic_and_count():
@@ -18,3 +18,14 @@ def test_schema_shape():
     item = props["articles"]["items"]["properties"]
     assert set(item.keys()) == {"source", "title", "link", "summary", "date"}
     assert ARTICLE_SCHEMA["schema"]["additionalProperties"] is False
+
+
+def test_parse_articles_from_text_clean():
+    raw = '{"articles": [{"source":"X","title":"T","link":"l","summary":"s","date":"d"}]}'
+    result = _parse_articles_from_text(raw, 5)
+    assert len(result) == 1 and result[0]["source"] == "X"
+
+
+def test_parse_articles_from_text_fenced():
+    raw = '```json\n{"articles": []}\n```'
+    assert _parse_articles_from_text(raw, 5) == []

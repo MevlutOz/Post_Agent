@@ -2,6 +2,7 @@
 çevirip data/articles_raw.json'a yazar (fetch.py ile aynı şema)."""
 import _bootstrap  # noqa: F401
 import json
+import sys
 from pathlib import Path
 from anthropic import Anthropic
 
@@ -64,7 +65,7 @@ def main():
     import yaml
     settings = yaml.safe_load((ROOT / "sources.yaml").read_text(encoding="utf-8"))["settings"]
     max_n = settings.get("max_candidates", 15)
-    brand = settings["brand_name"]
+    brand = settings.get("brand_name") or sys.exit("sources.yaml'da brand_name yok")
 
     client = Anthropic()
     prompt = build_search_prompt(topic, max_n, brand)
@@ -81,6 +82,8 @@ def main():
             messages=[{"role": "user", "content": prompt}],
         )
         text = next((b.text for b in resp.content if b.type == "text"), "")
+        if not text:
+            raise ValueError("Yanıtta metin bloğu yok")
         articles = _parse_articles_from_text(text, max_n)
 
     except Exception as e:
@@ -102,6 +105,8 @@ def main():
             messages=[{"role": "user", "content": fallback_prompt}],
         )
         text = next((b.text for b in resp.content if b.type == "text"), "")
+        if not text:
+            raise SystemExit("discover.py: Fallback yanıtında da metin bloğu yok.")
         articles = _parse_articles_from_text(text, max_n)
 
     (ROOT / "data").mkdir(exist_ok=True)
