@@ -37,6 +37,32 @@ def build_news_card(i, card, image_name):
 </div><div class="grain"></div></section>"""
 
 
+def build_cover_card(cover, image_name):
+    """Kapak kartı (00) — başlık + altında tam genişlik foto bandı. PURE."""
+    kick = _e(cover.get("kick", "DOSYA · DÜNYA KUPASI 2026"))
+    title = _e(cover.get("title", ""))
+    accent = _e(cover.get("title_accent", ""))
+    subtitle = _e(cover.get("subtitle", ""))
+    footer = _e(cover.get("footer", "KAPAK DOSYASI"))
+    title_html = title
+    if accent:
+        title_html = f'{title} <span style="color:{BLUE};">{accent}</span>'
+    return f"""<section data-screen-label="00" class="card"><div class="pad">
+  <div style="display:flex; align-items:center; justify-content:space-between;">
+    <img src="logo-blue.svg" alt="SaaSBridge" style="height:50px;"><span class="ctr">00 / 06</span></div>
+  <hr class="rule" style="margin-top:22px;">
+  <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:28px;">
+    <span class="tag" style="align-self:flex-start;">{kick}</span>
+    <h1 class="serif" style="margin:0; font-weight:800; font-size:96px; line-height:0.98; letter-spacing:-2px;">{title_html}</h1>
+    <p class="serif" style="margin:0; font-size:34px; line-height:1.4; color:#2a2a2a; max-width:900px;">{subtitle}</p>
+    <div class="imgwrap" style="width:932px; height:430px; margin-top:8px;"><img src="{_e(image_name)}" style="object-position:center 28%; filter:grayscale(1) contrast(1.12);"></div>
+  </div>
+  <hr class="rule">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-top:18px;">
+    <span class="cap">{footer}</span><span class="cap" style="color:{BLUE};">Kaydır →</span></div>
+</div><div class="grain"></div></section>"""
+
+
 def build_cta_card():
     """Kart 6 — sabit Founders & Investors Night görseli. PURE."""
     return ('<section data-screen-label="06" class="card" style="background:#1b3dc0;">'
@@ -44,11 +70,13 @@ def build_cta_card():
             'style="display:block; width:1080px; height:1350px; object-fit:cover;"></section>')
 
 
-def build_html_multi(cards, images):
-    """cards: 5 haber sözlüğü. images: kart-index(0..4) -> dosya adı. PURE."""
+def build_html_multi(cards, images, cover=None, cover_image=None):
+    """cards: 5 haber sözlüğü. images: kart-index(0..4) -> dosya adı.
+    cover verilirse 00 kapak kartı en başa eklenir (7 slayt). PURE."""
     news = "\n\n".join(
         build_news_card(i + 1, c, images.get(i, "")) for i, c in enumerate(cards[:5])
     )
+    cover_html = (build_cover_card(cover, cover_image or "") + "\n\n") if cover else ""
     return f"""<!DOCTYPE html><html><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,6 +88,7 @@ def build_html_multi(cards, images):
   .pad {{ position:absolute; inset:0; padding:74px; display:flex; flex-direction:column; }}
   .serif {{ font-family:'Newsreader',Georgia,serif; }}
   .kick {{ font-family:'Space Mono',monospace; text-transform:uppercase; letter-spacing:3px; font-size:22px; color:{BLUE}; }}
+  .tag {{ font-family:'Space Mono',monospace; text-transform:uppercase; letter-spacing:2px; font-size:20px; background:#0a0a0a; color:#fff; padding:9px 16px; }}
   .ctr {{ font-family:'Space Mono',monospace; font-size:22px; letter-spacing:2px; color:#0a0a0a; }}
   .rule {{ height:1px; background:#e4e4df; border:0; margin:0; }}
   .cap {{ font-family:'Space Mono',monospace; text-transform:uppercase; letter-spacing:2px; font-size:18px; color:#6b6b6b; }}
@@ -68,7 +97,7 @@ def build_html_multi(cards, images):
   .imgwrap img {{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:grayscale(1) contrast(1.05); }}
 </style></head><body>
 
-{news}
+{cover_html}{news}
 
 {build_cta_card()}
 

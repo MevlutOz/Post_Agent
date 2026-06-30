@@ -27,11 +27,16 @@ def _wiro_model():
 
 
 def _generate_photos(cards, outdir, model):
-    """Her haber kartı için bir S/B foto üretir. -> {index: dosya_adı}."""
+    """Her haber kartı için bir S/B foto üretir. -> {index: dosya_adı}.
+    Bir `_news_{i}.png` zaten varsa yeniden kullanır (Wiro çağrısından kaçınır)."""
     paths = {}
     for i, card in enumerate(cards[:5]):
         subject = card.get("image_subject") or card.get("title") or "technology"
         dest = outdir / f"_news_{i}.png"
+        if dest.exists():
+            print(f"    · haber {i+1} fotoğrafı mevcut, yeniden kullanılıyor.")
+            paths[i] = dest.name
+            continue
         try:
             url = wiro_client.generate_image(
                 build_image_prompt(subject), model=model, width=1024, height=1024,
@@ -44,8 +49,9 @@ def _generate_photos(cards, outdir, model):
     return paths
 
 
-def render(cards, outdir):
-    """5 haber kartı + sabit CTA'yı editöryel temada 6 PNG olarak render eder."""
+def render(cards, outdir, cover=None, cover_image_src=None):
+    """5 haber kartı + sabit CTA'yı editöryel temada render eder.
+    cover verilirse en başa 00 kapak kartı eklenir (7 PNG)."""
     from playwright.sync_api import sync_playwright
 
     outdir = Path(outdir).resolve()
@@ -58,8 +64,14 @@ def render(cards, outdir):
     for asset in ("logo-blue.svg", "cta-founders-investors-night.png"):
         shutil.copyfile(TEMPLATE_DIR / asset, outdir / asset)
 
+    cover_name = None
+    if cover and cover_image_src:
+        src = Path(cover_image_src)
+        cover_name = "cover-messi" + src.suffix.lower()
+        shutil.copyfile(src, outdir / cover_name)
+
     images = _generate_photos(cards, outdir, os.environ.get("WIRO_MODEL") or _wiro_model())
-    html = build_html_multi(cards, images)
+    html = build_html_multi(cards, images, cover=cover, cover_image=cover_name)
     html_path = outdir / "_editorial_multi.html"
     html_path.write_text(html, encoding="utf-8")
 
