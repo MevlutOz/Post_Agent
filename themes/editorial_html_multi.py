@@ -39,7 +39,7 @@ def build_news_card(i, card, image_name):
 
 def build_cover_card(cover, image_name):
     """Kapak kartı (00) — başlık + altında tam genişlik foto bandı. PURE."""
-    kick = _e(cover.get("kick", "DOSYA · DÜNYA KUPASI 2026"))
+    kick = _e(cover.get("kick", ""))
     title = _e(cover.get("title", ""))
     accent = _e(cover.get("title_accent", ""))
     subtitle = _e(cover.get("subtitle", ""))
@@ -47,12 +47,13 @@ def build_cover_card(cover, image_name):
     title_html = title
     if accent:
         title_html = f'{title} <span style="color:{BLUE};">{accent}</span>'
+    tag_html = f'<span class="tag" style="align-self:flex-start;">{kick}</span>' if kick else ""
     return f"""<section data-screen-label="00" class="card"><div class="pad">
   <div style="display:flex; align-items:center; justify-content:space-between;">
     <img src="logo-blue.svg" alt="SaaSBridge" style="height:50px;"><span class="ctr">00 / 06</span></div>
   <hr class="rule" style="margin-top:22px;">
   <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:28px;">
-    <span class="tag" style="align-self:flex-start;">{kick}</span>
+    {tag_html}
     <h1 class="serif" style="margin:0; font-weight:800; font-size:96px; line-height:0.98; letter-spacing:-2px;">{title_html}</h1>
     <p class="serif" style="margin:0; font-size:34px; line-height:1.4; color:#2a2a2a; max-width:900px;">{subtitle}</p>
     <div class="imgwrap" style="width:932px; height:430px; margin-top:8px;"><img src="{_e(image_name)}" style="object-position:center 28%; filter:grayscale(1) contrast(1.12);"></div>
