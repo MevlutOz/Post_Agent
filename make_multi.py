@@ -18,17 +18,16 @@ def main():
     if not cards:
         raise SystemExit("make_multi.py: posts_multi.json'da kart yok. Önce generate_multi.py.")
 
-    # Opsiyonel kapak: posts_multi.json'daki "cover" bloğu + foto yolu
-    # (CLI arg ya da COVER_IMAGE env). Foto yoksa kapak atlanır.
+    # Opsiyonel kapak: posts_multi.json'daki "cover" bloğu. Foto CLI arg ya da
+    # COVER_IMAGE env ile verilebilir; verilmezse Wiro'dan _cover.png üretilir.
     cover = data.get("cover")
     cover_img = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("COVER_IMAGE")
     if cover and not cover_img:
-        print("  ! 'cover' tanımlı ama kapak fotoğrafı verilmedi (arg/COVER_IMAGE); kapak atlanıyor.")
-        cover = None
+        print("  · kapak fotoğrafı verilmedi; Wiro'dan üretilecek (_cover.png).")
 
     today = date.today().isoformat()
     outdir = ROOT / "output" / today
-    n = editorial_multi.render(cards, outdir, cover=cover, cover_image_src=cover_img if cover else None)
+    n = editorial_multi.render(cards, outdir, cover=cover, cover_image_src=cover_img)
     print(f"✓ {n} slayt render edildi → output/{today}/slide_1..{n}.png")
 
 

@@ -49,6 +49,25 @@ def _generate_photos(cards, outdir, model):
     return paths
 
 
+def _generate_cover_photo(cover, outdir, model):
+    """Kapak için Wiro S/B foto üretir -> dosya adı ('_cover.png').
+    Varsa yeniden kullanır; hata halinde placeholder yazar."""
+    dest = Path(outdir) / "_cover.png"
+    if dest.exists():
+        print("    · kapak fotoğrafı mevcut, yeniden kullanılıyor.")
+        return dest.name
+    subject = cover.get("image_subject") or cover.get("title") or "football stadium"
+    try:
+        url = wiro_client.generate_image(
+            build_image_prompt(subject), model=model, width=1024, height=1024,
+        )
+        wiro_client.download(url, dest)
+    except Exception as ex:
+        print(f"    ! Wiro kapak başarısız ({ex}); placeholder.")
+        _placeholder(dest)
+    return dest.name
+
+
 def render(cards, outdir, cover=None, cover_image_src=None):
     """5 haber kartı + sabit CTA'yı editöryel temada render eder.
     cover verilirse en başa 00 kapak kartı eklenir (7 PNG)."""
@@ -64,13 +83,17 @@ def render(cards, outdir, cover=None, cover_image_src=None):
     for asset in ("logo-blue.svg", "cta-founders-investors-night.png"):
         shutil.copyfile(TEMPLATE_DIR / asset, outdir / asset)
 
+    model = os.environ.get("WIRO_MODEL") or _wiro_model()
     cover_name = None
     if cover and cover_image_src:
         src = Path(cover_image_src)
-        cover_name = "cover-messi" + src.suffix.lower()
-        shutil.copyfile(src, outdir / cover_name)
+        cover_name = "cover" + src.suffix.lower()
+        if src.resolve() != (outdir / cover_name).resolve():
+            shutil.copyfile(src, outdir / cover_name)
+    elif cover:
+        cover_name = _generate_cover_photo(cover, outdir, model)
 
-    images = _generate_photos(cards, outdir, os.environ.get("WIRO_MODEL") or _wiro_model())
+    images = _generate_photos(cards, outdir, model)
     html = build_html_multi(cards, images, cover=cover, cover_image=cover_name)
     html_path = outdir / "_editorial_multi.html"
     html_path.write_text(html, encoding="utf-8")
