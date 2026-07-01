@@ -30,7 +30,7 @@ def _generate_photos(cards, outdir, model):
     """Her haber kartı için bir S/B foto üretir. -> {index: dosya_adı}.
     Bir `_news_{i}.png` zaten varsa yeniden kullanır (Wiro çağrısından kaçınır)."""
     paths = {}
-    for i, card in enumerate(cards[:5]):
+    for i, card in enumerate(cards):
         subject = card.get("image_subject") or card.get("title") or "technology"
         dest = outdir / f"_news_{i}.png"
         if dest.exists():

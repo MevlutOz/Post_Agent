@@ -58,12 +58,14 @@ def test_build_html_multi_has_six_cards_and_fixed_cta():
     assert "Newsreader" in html and "Space+Mono" in html
 
 
-def test_build_html_multi_trims_to_five():
-    images = {i: f"_news_{i}.png" for i in range(7)}
-    six_cards = CARDS + [{"kick": "z", "title": "fazla", "body": "x", "source": "y"}]
+def test_build_html_multi_scales_beyond_five():
+    images = {i: f"_news_{i}.png" for i in range(6)}
+    six_cards = CARDS + [{"kick": "z", "title": "altıncı", "body": "x", "source": "y"}]
     html = build_html_multi(six_cards, images)
-    assert html.count('class="card"') == 6  # 5 haber + 1 CTA, fazlası kırpıldı
-    assert "fazla" not in html
+    assert html.count('class="card"') == 7  # 6 haber + 1 CTA
+    assert "altıncı" in html
+    assert "06 / 07" in html
+    assert 'data-screen-label="07"' in html  # CTA son numarayı alır
 
 
 def test_cover_card_has_title_accent_subtitle_counter_and_image():
@@ -106,3 +108,16 @@ def test_build_html_multi_without_cover_unchanged():
     html = build_html_multi(CARDS, images)
     assert html.count('class="card"') == 6
     assert "00 / 06" not in html
+
+
+def test_build_html_multi_four_cards_counter_is_five():
+    images = {i: f"_news_{i}.png" for i in range(4)}
+    html = build_html_multi(CARDS[:4], images)
+    assert html.count('class="card"') == 5  # 4 haber + 1 CTA
+    assert "01 / 05" in html and "04 / 05" in html
+    assert 'data-screen-label="05"' in html  # CTA son numarayı alır
+
+
+def test_cover_card_counter_follows_total():
+    html = build_cover_card(COVER, "x.jpg", total=5)
+    assert "00 / 05" in html

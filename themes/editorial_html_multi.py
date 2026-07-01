@@ -13,8 +13,8 @@ def _e(s):
     return _html.escape(s or "")
 
 
-def build_news_card(i, card, image_name):
-    """Tek haber kartı (1..5) — 'yan yana' düzen. i: 1-tabanlı kart no. PURE."""
+def build_news_card(i, card, image_name, total=6):
+    """Tek haber kartı (1..N) — 'yan yana' düzen. i: 1-tabanlı kart no. PURE."""
     kick = _e(card.get("kick", "")).upper()
     title = _e(card.get("title", ""))
     body = _e(card.get("body", ""))
@@ -22,7 +22,7 @@ def build_news_card(i, card, image_name):
     num = f"{i:02d}"
     return f"""<section data-screen-label="{num}" class="card"><div class="pad">
   <div style="display:flex; align-items:center; justify-content:space-between;">
-    <img src="logo-blue.svg" alt="SaaSBridge" style="height:46px;"><span class="ctr">{num} / 06</span></div>
+    <img src="logo-blue.svg" alt="SaaSBridge" style="height:46px;"><span class="ctr">{num} / {total:02d}</span></div>
   <hr class="rule" style="margin-top:22px;">
   <div style="flex:1; display:flex; align-items:center; gap:48px;">
     <div style="flex:1; display:flex; flex-direction:column; gap:24px;">
@@ -37,26 +37,34 @@ def build_news_card(i, card, image_name):
 </div><div class="grain"></div></section>"""
 
 
-def build_cover_card(cover, image_name):
-    """Kapak kartı (00) — başlık + altında tam genişlik foto bandı. PURE."""
+def build_cover_card(cover, image_name, total=6):
+    """Kapak kartı (00) — başlık + altında tam genişlik foto bandı. PURE.
+    accent varsa başlık iki katmanlı: üstte küçük siyah (title),
+    altta büyük mavi (title_accent)."""
     kick = _e(cover.get("kick", ""))
     title = _e(cover.get("title", ""))
     accent = _e(cover.get("title_accent", ""))
     subtitle = _e(cover.get("subtitle", ""))
     footer = _e(cover.get("footer", "KAPAK DOSYASI"))
-    title_html = title
     if accent:
-        title_html = f'{title} <span style="color:{BLUE};">{accent}</span>'
+        title_html = (
+            '<div style="display:flex; flex-direction:column; gap:8px;">'
+            f'<span class="serif" style="font-weight:700; font-size:50px; line-height:1.03; letter-spacing:-1px; color:#0a0a0a;">{title}</span>'
+            f'<span class="serif" style="font-weight:800; font-size:92px; line-height:0.98; letter-spacing:-2px; color:{BLUE};">{accent}</span>'
+            '</div>'
+        )
+    else:
+        title_html = f'<h1 class="serif" style="margin:0; font-weight:800; font-size:96px; line-height:0.98; letter-spacing:-2px;">{title}</h1>'
     tag_html = f'<span class="tag" style="align-self:flex-start;">{kick}</span>' if kick else ""
     return f"""<section data-screen-label="00" class="card"><div class="pad">
   <div style="display:flex; align-items:center; justify-content:space-between;">
-    <img src="logo-blue.svg" alt="SaaSBridge" style="height:50px;"><span class="ctr">00 / 06</span></div>
+    <img src="logo-blue.svg" alt="SaaSBridge" style="height:50px;"><span class="ctr">00 / {total:02d}</span></div>
   <hr class="rule" style="margin-top:22px;">
-  <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:28px;">
+  <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:24px;">
     {tag_html}
-    <h1 class="serif" style="margin:0; font-weight:800; font-size:96px; line-height:0.98; letter-spacing:-2px;">{title_html}</h1>
+    {title_html}
     <p class="serif" style="margin:0; font-size:34px; line-height:1.4; color:#2a2a2a; max-width:900px;">{subtitle}</p>
-    <div class="imgwrap" style="width:932px; height:430px; margin-top:8px;"><img src="{_e(image_name)}" style="object-position:center 28%; filter:grayscale(1) contrast(1.12);"></div>
+    <div class="imgwrap" style="width:932px; height:390px; margin-top:8px;"><img src="{_e(image_name)}" style="object-position:center 28%; filter:grayscale(1) contrast(1.12);"></div>
   </div>
   <hr class="rule">
   <div style="display:flex; align-items:center; justify-content:space-between; margin-top:18px;">
@@ -64,20 +72,22 @@ def build_cover_card(cover, image_name):
 </div><div class="grain"></div></section>"""
 
 
-def build_cta_card():
-    """Kart 6 — sabit Founders & Investors Night görseli. PURE."""
-    return ('<section data-screen-label="06" class="card" style="background:#1b3dc0;">'
+def build_cta_card(total=6):
+    """Son kart (CTA) — sabit Founders & Investors Night görseli. PURE."""
+    return (f'<section data-screen-label="{total:02d}" class="card" style="background:#1b3dc0;">'
             '<img src="cta-founders-investors-night.png" alt="Founders &amp; Investors Night" '
             'style="display:block; width:1080px; height:1350px; object-fit:cover;"></section>')
 
 
 def build_html_multi(cards, images, cover=None, cover_image=None):
-    """cards: 5 haber sözlüğü. images: kart-index(0..4) -> dosya adı.
-    cover verilirse 00 kapak kartı en başa eklenir (7 slayt). PURE."""
+    """cards: N haber sözlüğü. images: kart-index(0..N-1) -> dosya adı.
+    Sayaç toplamı = haber sayısı + 1 (CTA). cover verilirse 00 kapak en başa. PURE."""
+    total = len(cards) + 1
     news = "\n\n".join(
-        build_news_card(i + 1, c, images.get(i, "")) for i, c in enumerate(cards[:5])
+        build_news_card(i + 1, c, images.get(i, ""), total) for i, c in enumerate(cards)
     )
-    cover_html = (build_cover_card(cover, cover_image or "") + "\n\n") if cover else ""
+    cover_html = (build_cover_card(cover, cover_image or "", total) + "\n\n") if cover else ""
+    cta_html = build_cta_card(total)
     return f"""<!DOCTYPE html><html><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -100,6 +110,6 @@ def build_html_multi(cards, images, cover=None, cover_image=None):
 
 {cover_html}{news}
 
-{build_cta_card()}
+{cta_html}
 
 </body></html>"""
