@@ -1,7 +1,7 @@
 .env
 __pycache__/
 *.pyc
-data/
+data/*
 !data/posts_multi.json
 output/
 son_calisma.log
