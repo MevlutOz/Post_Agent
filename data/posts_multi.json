@@ -1,0 +1,40 @@
+{
+  "cover": {
+    "kick": "SON 16 · DÜNYA KUPASI 2026",
+    "title": "Dünya Kupasında Son 16'ya Kalan",
+    "title_accent": "4 Ülkenin SaaS Yıldızları",
+    "subtitle": "Fransa, Brezilya, Paraguay ve Fas sahada tur atlarken, biz de her ülkenin en başarılı SaaS ürününü tek tek açıyoruz.",
+    "footer": "KAPAK DOSYASI · 4 ÜLKE",
+    "image_subject": "world cup trophy on a pedestal inside a packed football stadium at night, dramatic floodlights, wide shot"
+  },
+  "cards": [
+    {
+      "kick": "FRANSA",
+      "title": "Doctolib",
+      "body": "Fransa'nın sağlık sistemini dijitale taşıyan Doctolib, 90 milyondan fazla kullanıcının randevu ve telesağlık platformu. Yaklaşık 6 milyar euro değerlemesiyle Avrupa'nın en değerli sağlık SaaS'ı. Doktor arayan hasta ile ajandasını yöneten hekim arasındaki köprü artık tek uygulama.",
+      "image_subject": "modern doctor's office with a laptop showing a calendar interface, stethoscope on the desk, clean minimal clinic",
+      "source": "doctolib.fr"
+    },
+    {
+      "kick": "BREZİLYA",
+      "title": "VTEX",
+      "body": "Brezilya'dan çıkıp New York borsasına uzanan VTEX, kurumsal e-ticaretin işletim sistemi. Coca-Cola ve Sony gibi devler, 30'dan fazla ülkedeki online mağazalarını bu platformun üzerinde koşturuyor. Latin Amerika'nın en global SaaS başarısı.",
+      "image_subject": "large modern e-commerce fulfillment warehouse with conveyor belts and stacked packages, dramatic industrial light",
+      "source": "vtex.com"
+    },
+    {
+      "kick": "PARAGUAY",
+      "title": "Fiweex",
+      "body": "Paraguay'ın genç ekosisteminden bölgesel bir ürün: Fiweex, kafe ve restoranların misafir WiFi'ını bir pazarlama kanalına çeviriyor. Latin Amerika'da 2.500'den fazla işletmede kurulu, 15 milyonu aşkın kayıtlı bağlantıya ulaştı. Küçük pazardan bölgesel SaaS çıkabileceğinin kanıtı.",
+      "image_subject": "cozy cafe interior with people using laptops and phones, warm ambient light, wifi router on the wall",
+      "source": "fiweex.com"
+    },
+    {
+      "kick": "FAS",
+      "title": "Freterium",
+      "body": "Kazablanka doğumlu Freterium, üretici ve perakendecilerin nakliye operasyonunu tek bulut platformunda topluyor. Y Combinator destekli ürünün müşterileri Birleşik Arap Emirlikleri'nden Endonezya'ya uzanıyor. Afrika'nın lojistik SaaS'taki en dikkat çekici çıkışı.",
+      "image_subject": "fleet of cargo trucks lined up at a logistics hub at dawn, shipping containers in the background",
+      "source": "freterium.com"
+    }
+  ]
+}
