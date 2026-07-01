@@ -1,6 +1,6 @@
 # themes/editorial_multi.py
-"""5 haber + sabit CTA editöryel render: her haber için Wiro S/B fotoğrafı,
-Playwright(Chromium) → 6 PNG. editorial.py render mantığıyla aynı."""
+"""N haber + sabit CTA editöryel render: her haber için Wiro S/B fotoğrafı,
+Playwright(Chromium) → kart sayısı + 1 PNG (kapak varsa +1). editorial.py render mantığıyla aynı."""
 import _bootstrap  # noqa: F401
 import os
 import shutil
@@ -56,7 +56,7 @@ def _generate_cover_photo(cover, outdir, model):
     if dest.exists():
         print("    · kapak fotoğrafı mevcut, yeniden kullanılıyor.")
         return dest.name
-    subject = cover.get("image_subject") or cover.get("title") or "football stadium"
+    subject = cover.get("image_subject") or cover.get("title") or "technology"
     try:
         url = wiro_client.generate_image(
             build_image_prompt(subject), model=model, width=1024, height=1024,
@@ -69,8 +69,8 @@ def _generate_cover_photo(cover, outdir, model):
 
 
 def render(cards, outdir, cover=None, cover_image_src=None):
-    """5 haber kartı + sabit CTA'yı editöryel temada render eder.
-    cover verilirse en başa 00 kapak kartı eklenir (7 PNG)."""
+    """N haber kartı + sabit CTA'yı editöryel temada render eder; sayaç toplamı = kart sayısı + 1.
+    cover verilirse en başa 00 kapak kartı eklenir."""
     from playwright.sync_api import sync_playwright
 
     outdir = Path(outdir).resolve()

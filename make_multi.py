@@ -1,5 +1,5 @@
-"""make_multi.py — posts_multi.json'u editöryel '5 haber + CTA' temasında
-6 PNG olarak render eder. (generate_multi.py'den sonra çalıştır.)"""
+"""make_multi.py — posts_multi.json'u editöryel 'N haber + CTA' temasında
+kart sayısı + 1 (+kapak) PNG olarak render eder. (generate_multi.py'den sonra çalıştır.)"""
 import _bootstrap  # noqa: F401
 import json
 import os

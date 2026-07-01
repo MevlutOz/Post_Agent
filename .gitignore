@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 data/
+!data/posts_multi.json
 output/
 son_calisma.log
 .superpowers/
